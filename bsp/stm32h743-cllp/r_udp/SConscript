@@ -1,0 +1,13 @@
+from building import *
+
+cwd = GetCurrentDir()
+if GetDepend(['RT_USING_RUDP']):
+    src = Glob('*.c')
+else:
+    src = Split("""""")
+
+CPPPATH = [cwd, str(Dir('#'))]
+
+group = DefineGroup('rudp', src, depend = [''], CPPPATH = CPPPATH)
+
+Return('group')

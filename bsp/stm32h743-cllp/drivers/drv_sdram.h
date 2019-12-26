@@ -1,0 +1,11 @@
+#ifndef __DRV_SDRAM_H__
+#define __DRV_SDRAM_H__
+
+#ifdef RT_USING_EXSDRAM
+#define EXT_SDRAM_BEGIN    0xC0000000
+#define EXT_SDRAM_SIZE     (0x00100000*EXT_SDRAM_SIZE_MB)
+#define EXT_SDRAM_END      (EXT_SDRAM_BEGIN + EXT_SDRAM_SIZE)
+#endif
+
+#endif
+

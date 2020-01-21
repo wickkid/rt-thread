@@ -1,0 +1,37 @@
+config RT_USING_UART1
+    bool "Using uart1"
+    select RT_USING_SERIAL
+    default y
+config RT_USING_UART3
+    bool "Using uart3"
+    select RT_USING_SERIAL
+    default y
+config RT_USING_UART4
+    bool "Using uart4"
+    select RT_USING_SERIAL
+    default y
+config RT_USING_EMAC
+    bool "Using emac"
+    select RT_USING_LWIP
+    default n
+
+config RT_USING_GPIO
+    bool "Using gpio"
+    select RT_USING_PIN
+    default n
+
+config RT_USING_ADCONVERT
+    bool "Using adc"  
+    default n
+
+menu "Extern SDRAM"
+    config RT_USING_EXSDRAM
+        bool "Using external sdram"
+        default n  
+    if RT_USING_EXSDRAM
+        config EXT_SDRAM_SIZE_MB
+            int "external sdram (MB)"
+            default 32
+    endif
+endmenu
+

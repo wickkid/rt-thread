@@ -1,0 +1,29 @@
+from building import *
+
+cwd = GetCurrentDir()
+src = Split("""
+board.c
+stm32h7xx_it.c
+drv_mpu.c
+""")
+
+if GetDepend(['RT_USING_SERIAL']):
+    src += ['drv_usart.c']
+
+if GetDepend('RT_USING_EMAC'):
+    src += ['lan8742a.c']
+	
+if GetDepend('RT_USING_EXSDRAM'):
+    src += ['drv_sdram.c']
+
+if GetDepend('RT_USING_GPIO'):
+    src += ['drv_gpio.c']	
+
+if GetDepend('RT_USING_ADCONVERT'):
+    src += ['drv_adc.c']	  
+     
+CPPPATH = [cwd]
+
+group = DefineGroup('Drivers', src, depend = [''], CPPPATH = CPPPATH)
+
+Return('group')

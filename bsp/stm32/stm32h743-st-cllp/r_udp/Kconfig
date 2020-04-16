@@ -1,5 +1,0 @@
-if RT_USING_LWIP
-    config RT_USING_RUDP
-    bool "Using reliable UDP"
-    default n
-endif

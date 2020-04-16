@@ -3,7 +3,10 @@ import os
 # toolchains options
 ARCH='arm'
 CPU='cortex-m7'
-CROSS_TOOL='iar'
+CROSS_TOOL='gcc'
+
+# bsp lib config
+BSP_LIBRARY_TYPE = None
 
 if os.getenv('RTT_CC'):
     CROSS_TOOL = os.getenv('RTT_CC')
@@ -13,58 +16,51 @@ if os.getenv('RTT_ROOT'):
 # cross_tool provides the cross compiler
 # EXEC_PATH is the compiler execute path, for example, CodeSourcery, Keil MDK, IAR
 if  CROSS_TOOL == 'gcc':
-    PLATFORM 	= 'gcc'
-    EXEC_PATH 	= r'C:/Program Files/CodeSourcery/Sourcery G++ Lite/bin'
+    PLATFORM    = 'gcc'
+    EXEC_PATH   = r'C:\Users\XXYYZZ'
 elif CROSS_TOOL == 'keil':
-    PLATFORM 	= 'armcc'
-    EXEC_PATH 	= r'C:/Keil_v5'
+    PLATFORM    = 'armcc'
+    EXEC_PATH   = r'C:/Keil_v5'
 elif CROSS_TOOL == 'iar':
-	PLATFORM 	= 'iar'
-	EXEC_PATH 	= r'C:/Program Files (x86)/IAR Systems/Embedded Workbench 8.0'
+    PLATFORM    = 'iar'
+    EXEC_PATH   = r'C:/Program Files (x86)/IAR Systems/Embedded Workbench 8.0'
 
 if os.getenv('RTT_EXEC_PATH'):
     EXEC_PATH = os.getenv('RTT_EXEC_PATH')
 
 BUILD = 'debug'
-STM32_TYPE = 'STM32H743xx'
 
 if PLATFORM == 'gcc':
     # toolchains
     PREFIX = 'arm-none-eabi-'
     CC = PREFIX + 'gcc'
-    CXX = PREFIX + 'g++'
     AS = PREFIX + 'gcc'
     AR = PREFIX + 'ar'
+    CXX = PREFIX + 'g++'
     LINK = PREFIX + 'gcc'
     TARGET_EXT = 'elf'
     SIZE = PREFIX + 'size'
     OBJDUMP = PREFIX + 'objdump'
     OBJCPY = PREFIX + 'objcopy'
-    STRIP = PREFIX + 'strip'
 
-    DEVICE = '  -mcpu=cortex-m7 -mthumb -mfpu=fpv4-sp-d16 -mfloat-abi=softfp -ffunction-sections -fdata-sections'
-    CFLAGS = DEVICE + ' -g -Wall -DSTM32H743xx -DUSE_HAL_DRIVER -D__ASSEMBLY__ -eentry'
+    DEVICE = ' -mcpu=cortex-m7 -mthumb -mfpu=fpv5-d16 -mfloat-abi=hard -ffunction-sections -fdata-sections'
+    CFLAGS = DEVICE + ' -Dgcc'
     AFLAGS = ' -c' + DEVICE + ' -x assembler-with-cpp -Wa,-mimplicit-it=thumb '
-    LFLAGS = DEVICE + ' -lm -lgcc -lc' + ' -nostartfiles -Wl,--gc-sections,-Map=rtthread_stm32h7xx.map,-cref,-u,Reset_Handler -T rtthread-stm32h7xx.ld'
+    LFLAGS = DEVICE + ' -Wl,--gc-sections,-Map=rtthread.map,-cref,-u,Reset_Handler -T board/linker_scripts/link.lds'
 
     CPATH = ''
     LPATH = ''
 
     if BUILD == 'debug':
-        CFLAGS += ' -O0 -gdwarf-2'
+        CFLAGS += ' -O0 -gdwarf-2 -g'
         AFLAGS += ' -gdwarf-2'
     else:
-        CFLAGS += ' -O2 -Os'
+        CFLAGS += ' -O2'
+
+    CXXFLAGS = CFLAGS 
+    CFLAGS += ' -std=c99'
 
     POST_ACTION = OBJCPY + ' -O binary $TARGET rtthread.bin\n' + SIZE + ' $TARGET \n'
-
-    # module setting 
-    CXXFLAGS = ' -Woverloaded-virtual -fno-exceptions -fno-rtti '
-    M_CFLAGS = CFLAGS + ' -mlong-calls -fPIC '
-    M_CXXFLAGS = CXXFLAGS + ' -mlong-calls -fPIC'
-    M_LFLAGS = DEVICE + CXXFLAGS + ' -Wl,--gc-sections,-z,max-page-size=0x4' +\
-                                    ' -shared -fPIC -nostartfiles -static-libgcc'
-    M_POST_ACTION = STRIP + ' -R .hash $TARGET\n' + SIZE + ' $TARGET \n'
 
 elif PLATFORM == 'armcc':
     # toolchains
@@ -75,23 +71,27 @@ elif PLATFORM == 'armcc':
     LINK = 'armlink'
     TARGET_EXT = 'axf'
 
-    DEVICE = ' --cpu Cortex-M7.fp.sp --fpu=FPv4-SP'
-    CFLAGS = DEVICE + ' --apcs=interwork -DUSE_HAL_DRIVER -DSTM32H743xx'
-    AFLAGS = DEVICE
-    LFLAGS = DEVICE + ' --info sizes --info totals --info unused --info veneers --list rtthread-stm32h7xx.map --scatter rtthread-stm32h7xx.sct'
+    DEVICE = ' --cpu Cortex-M7.fp.sp'
+    CFLAGS = '-c ' + DEVICE + ' --apcs=interwork --c99'
+    AFLAGS = DEVICE + ' --apcs=interwork '
+    LFLAGS = DEVICE + ' --scatter "board\linker_scripts\link.sct" --info sizes --info totals --info unused --info veneers --list rtthread.map --strict'
+    CFLAGS += ' -I' + EXEC_PATH + '/ARM/ARMCC/include'
+    LFLAGS += ' --libpath=' + EXEC_PATH + '/ARM/ARMCC/lib'
 
-    CFLAGS += ' -I' + EXEC_PATH + '/ARM/RV31/INC'
-    LFLAGS += ' --libpath ' + EXEC_PATH + '/ARM/RV31/LIB'
-
-    EXEC_PATH += '/arm/bin40/'
+    CFLAGS += ' -D__MICROLIB '
+    AFLAGS += ' --pd "__MICROLIB SETA 1" '
+    LFLAGS += ' --library_type=microlib '
+    EXEC_PATH += '/ARM/ARMCC/bin/'
 
     if BUILD == 'debug':
         CFLAGS += ' -g -O0'
         AFLAGS += ' -g'
     else:
-        CFLAGS += ' -O2 -Otime'
+        CFLAGS += ' -O2'
 
-    CXXFLAGS = CFLAGS
+    CXXFLAGS = CFLAGS 
+    CFLAGS += ' -std=c99'
+
     POST_ACTION = 'fromelf --bin $TARGET --output rtthread.bin \nfromelf -z $TARGET'
 
 elif PLATFORM == 'iar':
@@ -103,42 +103,42 @@ elif PLATFORM == 'iar':
     LINK = 'ilinkarm'
     TARGET_EXT = 'out'
 
-    DEVICE = ' -D DUSE_HAL_DRIVER' + ' -D STM32H743xx'
+    DEVICE = '-Dewarm'
 
     CFLAGS = DEVICE
     CFLAGS += ' --diag_suppress Pa050'
-    CFLAGS += ' --no_cse' 
-    CFLAGS += ' --no_unroll' 
-    CFLAGS += ' --no_inline' 
-    CFLAGS += ' --no_code_motion' 
-    CFLAGS += ' --no_tbaa' 
-    CFLAGS += ' --no_clustering' 
-    CFLAGS += ' --no_scheduling' 
-    CFLAGS += ' --debug' 
-    CFLAGS += ' --endian=little' 
+    CFLAGS += ' --no_cse'
+    CFLAGS += ' --no_unroll'
+    CFLAGS += ' --no_inline'
+    CFLAGS += ' --no_code_motion'
+    CFLAGS += ' --no_tbaa'
+    CFLAGS += ' --no_clustering'
+    CFLAGS += ' --no_scheduling'
+    CFLAGS += ' --endian=little'
     CFLAGS += ' --cpu=Cortex-M7' 
     CFLAGS += ' -e' 
-    CFLAGS += ' --fpu=None'
-    CFLAGS += ' --dlib_config "' + EXEC_PATH + '/arm/INC/c/DLib_Config_Normal.h"'    
-    CFLAGS += ' -Ol'    
-    CFLAGS += ' --use_c++_inline'
+    CFLAGS += ' --fpu=VFPv5_sp'
+    CFLAGS += ' --dlib_config "' + EXEC_PATH + '/arm/INC/c/DLib_Config_Normal.h"'
     CFLAGS += ' --silent'
     
-    AFLAGS = ''
+    AFLAGS = DEVICE
     AFLAGS += ' -s+' 
     AFLAGS += ' -w+' 
     AFLAGS += ' -r' 
     AFLAGS += ' --cpu Cortex-M7' 
-    AFLAGS += ' --fpu None' 
+    AFLAGS += ' --fpu VFPv5_sp' 
     AFLAGS += ' -S' 
     
-    LFLAGS = ' --config rtthread-stm32h7xx.icf'
-    LFLAGS += ' --redirect _Printf=_PrintfTiny' 
-    LFLAGS += ' --redirect _Scanf=_ScanfSmall' 
-    LFLAGS += ' --entry __iar_program_start'    
-    LFLAGS += ' --silent'
+    if BUILD == 'debug':
+        CFLAGS += ' --debug'
+        CFLAGS += ' -On'
+    else:
+        CFLAGS += ' -Oh'
+
+    LFLAGS = ' --config "board/linker_scripts/link.icf"'
+    LFLAGS += ' --entry __iar_program_start'
 
     CXXFLAGS = CFLAGS
-
+    
     EXEC_PATH = EXEC_PATH + '/arm/bin/'
-    POST_ACTION = ''
+    POST_ACTION = 'ielftool --bin $TARGET rtthread.bin'

@@ -16,24 +16,18 @@
   ==============================================================================
      [..]
      The ETH HAL driver can be used as follows:
-
       (#)Declare a ETH_HandleTypeDef handle structure, for example:
          ETH_HandleTypeDef  heth;
-
       (#)Fill parameters of Init structure in heth handle
-
       (#)Call HAL_ETH_Init() API to initialize the Ethernet peripheral (MAC, DMA, ...)
-
       (#)Initialize the ETH low level resources through the HAL_ETH_MspInit() API:
           (##) Enable the Ethernet interface clock using
                 (+++)  __HAL_RCC_ETH1MAC_CLK_ENABLE()
                 (+++)  __HAL_RCC_ETH1TX_CLK_ENABLE()
                 (+++)  __HAL_RCC_ETH1RX_CLK_ENABLE()
-
           (##) Initialize the related GPIO clocks
           (##) Configure Ethernet pinout
           (##) Configure Ethernet NVIC interrupt (in Interrupt mode)
-
       (#) Ethernet data reception is asynchronous, so call the following API
           to start the listening mode:
           (##) HAL_ETH_Start():
@@ -44,40 +38,31 @@
                This API starts the MAC and DMA transmission and reception process,
                end of transfer interrupts are enabled in this mode,
                HAL_ETH_RxCpltCallback() will be executed when an Ethernet packet is received
-
       (#) When data is received (HAL_ETH_IsRxDataAvailable() returns 1 or Rx interrupt
           occurred), user can call the following APIs to get received data:
           (##) HAL_ETH_GetRxDataBuffer(): Get buffer address of received frame
           (##) HAL_ETH_GetRxDataLength(): Get received frame length
           (##) HAL_ETH_GetRxDataInfo(): Get received frame additional info,
                please refer to ETH_RxPacketInfo typedef structure
-
       (#) For transmission path, two APIs are available:
          (##) HAL_ETH_Transmit(): Transmit an ETH frame in blocking mode
          (##) HAL_ETH_Transmit_IT(): Transmit an ETH frame in interrupt mode,
               HAL_ETH_TxCpltCallback() will be executed when end of transfer occur
-
       (#) Communication with an external PHY device:
          (##) HAL_ETH_ReadPHYRegister(): Read a register from an external PHY
          (##) HAL_ETH_WritePHYRegister(): Write data to an external RHY register
-
       (#) Configure the Ethernet MAC after ETH peripheral initialization
           (##) HAL_ETH_GetMACConfig(): Get MAC actual configuration into ETH_MACConfigTypeDef
           (##) HAL_ETH_SetMACConfig(): Set MAC configuration based on ETH_MACConfigTypeDef
-
       (#) Configure the Ethernet DMA after ETH peripheral initialization
           (##) HAL_ETH_GetDMAConfig(): Get DMA actual configuration into ETH_DMAConfigTypeDef
           (##) HAL_ETH_SetDMAConfig(): Set DMA configuration based on ETH_DMAConfigTypeDef
-
       -@- The PTP protocol offload APIs are not supported in this driver.
-
   *** Callback registration ***
   =============================================
-
   The compilation define  USE_HAL_ETH_REGISTER_CALLBACKS when set to 1
   allows the user to configure dynamically the driver callbacks.
   Use Function @ref HAL_ETH_RegisterCallback() to register an interrupt callback.
-
   Function @ref HAL_ETH_RegisterCallback() allows to register following callbacks:
     (+) TxCpltCallback   : Tx Complete Callback.
     (+) RxCpltCallback   : Rx Complete Callback.
@@ -88,10 +73,8 @@
     (+) WakeUpCallback   : Wake UP Callback
     (+) MspInitCallback  : MspInit Callback.
     (+) MspDeInitCallback: MspDeInit Callback.
-
   This function takes as parameters the HAL peripheral handle, the Callback ID
   and a pointer to the user callback function.
-
   Use function @ref HAL_ETH_UnRegisterCallback() to reset a callback to the default
   weak function.
   @ref HAL_ETH_UnRegisterCallback takes as parameters the HAL peripheral handle,
@@ -106,7 +89,6 @@
     (+) WakeUpCallback   : Wake UP Callback
     (+) MspInitCallback  : MspInit Callback.
     (+) MspDeInitCallback: MspDeInit Callback.
-
   By default, after the HAL_ETH_Init and when the state is HAL_ETH_STATE_RESET
   all callbacks are set to the corresponding weak functions:
   examples @ref HAL_ETH_TxCpltCallback(), @ref HAL_ETH_RxCpltCallback().
@@ -115,7 +97,6 @@
   these callbacks are null (not registered beforehand).
   if not, MspInit or MspDeInit are not null, the HAL_ETH_Init/ @ref HAL_ETH_DeInit
   keep and use the user MspInit/MspDeInit callbacks (registered beforehand)
-
   Callbacks can be registered/unregistered in HAL_ETH_STATE_READY state only.
   Exception done MspInit/MspDeInit that can be registered/unregistered
   in HAL_ETH_STATE_READY or HAL_ETH_STATE_RESET state,
@@ -123,11 +104,9 @@
   In that case first register the MspInit/MspDeInit user callbacks
   using @ref HAL_ETH_RegisterCallback() before calling @ref HAL_ETH_DeInit
   or HAL_ETH_Init function.
-
   When The compilation define USE_HAL_ETH_REGISTER_CALLBACKS is set to 0 or
   not defined, the callback registration feature is not available and all callbacks
   are set to the corresponding weak functions.
-
   @endverbatim
   ******************************************************************************
   * @attention
@@ -245,10 +224,8 @@ static void ETH_InitCallbacksToDefault(ETH_HandleTypeDef *heth);
  ===============================================================================
     [..]  This subsection provides a set of functions allowing to initialize and
           deinitialize the ETH peripheral:
-
       (+) User must Implement HAL_ETH_MspInit() function in which he configures
           all related peripherals resources (CLOCK, GPIO and NVIC ).
-
       (+) Call the function HAL_ETH_Init() to configure the selected device with
           the selected configuration:
         (++) MAC address
@@ -256,13 +233,10 @@ static void ETH_InitCallbacksToDefault(ETH_HandleTypeDef *heth);
         (++) Rx DMA Descriptors Tab
         (++) Tx DMA Descriptors Tab
         (++) Length of Rx Buffers
-
       (+) Call the function HAL_ETH_DescAssignMemory() to assign data buffers
           for each Rx DMA Descriptor
-
       (+) Call the function HAL_ETH_DeInit() to restore the default configuration
           of the selected ETH peripheral.
-
 @endverbatim
   * @{
   */
@@ -735,7 +709,6 @@ HAL_StatusTypeDef HAL_ETH_DescAssignMemory(ETH_HandleTypeDef *heth, uint32_t Ind
   [..]
     This subsection provides a set of functions allowing to manage the ETH
     data transfer.
-
 @endverbatim
   * @{
   */
@@ -1868,7 +1841,6 @@ HAL_StatusTypeDef HAL_ETH_WritePHYRegister(ETH_HandleTypeDef *heth, uint32_t PHY
   [..]
     This subsection provides a set of functions allowing to control the ETH
     peripheral.
-
 @endverbatim
   * @{
   */
@@ -2313,8 +2285,6 @@ HAL_StatusTypeDef HAL_ETH_SetWakeUpFilter(ETH_HandleTypeDef *heth, uint32_t *pFi
    This subsection provides a set of functions allowing to return the State of
    ETH communication process, return Peripheral Errors occurred during communication
    process
-
-
 @endverbatim
   * @{
   */
@@ -2700,8 +2670,10 @@ static void ETH_DMARxDescListInit(ETH_HandleTypeDef *heth)
   /* Set Receive Descriptor List Address */
   WRITE_REG(heth->Instance->DMACRDLAR, (uint32_t) heth->Init.RxDesc);
 
-  /* Set Receive Descriptor Tail pointer Address */
-  WRITE_REG(heth->Instance->DMACRDTPR, ((uint32_t)(heth->Init.RxDesc + (((uint32_t)(ETH_RX_DESC_CNT - 1))*sizeof(ETH_DMADescTypeDef)))));
+  /* Set Receive Descriptor Tail pointer Address *///wickkid chg
+  //WRITE_REG(heth->Instance->DMACRDTPR, ((uint32_t)(heth->Init.RxDesc + (((uint32_t)(ETH_RX_DESC_CNT - 1))*sizeof(ETH_DMADescTypeDef)))));
+  WRITE_REG(heth->Instance->DMACRDTPR, (uint32_t) dmarxdesc);
+
 }
 
 /**
@@ -2990,3 +2962,4 @@ static void ETH_InitCallbacksToDefault(ETH_HandleTypeDef *heth)
   */
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
+

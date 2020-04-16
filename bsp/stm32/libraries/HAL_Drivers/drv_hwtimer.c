@@ -166,7 +166,7 @@ static void timer_init(struct rt_hwtimer_device *timer, rt_uint32_t state)
         /* time init */
 #if defined(SOC_SERIES_STM32F2) || defined(SOC_SERIES_STM32F4) || defined(SOC_SERIES_STM32F7)
         if (tim->Instance == TIM9 || tim->Instance == TIM10 || tim->Instance == TIM11)
-#elif defined(SOC_SERIES_STM32L4)
+#elif defined(SOC_SERIES_STM32L4) ||  defined(SOC_SERIES_STM32H7)
         if (tim->Instance == TIM15 || tim->Instance == TIM16 || tim->Instance == TIM17)
 #elif defined(SOC_SERIES_STM32F1) || defined(SOC_SERIES_STM32F0) || defined(SOC_SERIES_STM32G0)
         if (0)
@@ -289,13 +289,13 @@ static rt_err_t timer_ctrl(rt_hwtimer_t *timer, rt_uint32_t cmd, void *arg)
 
 #if defined(SOC_SERIES_STM32F2) || defined(SOC_SERIES_STM32F4) || defined(SOC_SERIES_STM32F7)
         if (tim->Instance == TIM9 || tim->Instance == TIM10 || tim->Instance == TIM11)
-#elif defined(SOC_SERIES_STM32L4)
+#elif defined(SOC_SERIES_STM32L4) ||  defined(SOC_SERIES_STM32H7)
         if (tim->Instance == TIM15 || tim->Instance == TIM16 || tim->Instance == TIM17)
 #elif defined(SOC_SERIES_STM32F1) || defined(SOC_SERIES_STM32F0) || defined(SOC_SERIES_STM32G0)
         if (0)
 #endif
         {
-#if defined(SOC_SERIES_STM32L4)
+#if defined(SOC_SERIES_STM32L4) ||  defined(SOC_SERIES_STM32H7)
             val = HAL_RCC_GetPCLK2Freq() / freq;
 #elif defined(SOC_SERIES_STM32F1) || defined(SOC_SERIES_STM32F2) || defined(SOC_SERIES_STM32F4) || defined(SOC_SERIES_STM32F7)
             val = HAL_RCC_GetPCLK2Freq() * 2 / freq;
@@ -434,7 +434,7 @@ void TIM1_BRK_TIM15_IRQHandler(void)
 #ifdef BSP_USING_TIM16
 #if defined(SOC_SERIES_STM32L4)
     void TIM1_UP_TIM16_IRQHandler(void)
-#elif defined(SOC_SERIES_STM32F0)
+#elif defined(SOC_SERIES_STM32F0) ||  defined(SOC_SERIES_STM32H7)
     void TIM16_IRQHandler(void)
 #endif
 {
@@ -448,7 +448,7 @@ void TIM1_BRK_TIM15_IRQHandler(void)
 #ifdef BSP_USING_TIM17
 #if defined(SOC_SERIES_STM32L4)
     void TIM1_TRG_COM_TIM17_IRQHandler(void)
-#elif defined(SOC_SERIES_STM32F0)
+#elif defined(SOC_SERIES_STM32F0) ||  defined(SOC_SERIES_STM32H7)
     void TIM17_IRQHandler(void)
 #endif
 {
